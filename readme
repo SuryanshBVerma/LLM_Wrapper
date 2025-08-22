@@ -1,0 +1,2 @@
+RUN - docker-compose up -d
+RUN - docker-compose run --rm orchestration-agent

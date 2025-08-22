@@ -1,0 +1,55 @@
+services:
+  conversational-agent:
+    build:
+      context: ./Coversational Agent --Docker
+      dockerfile: Dockerfile
+    image: conversational-agent
+    container_name: conversational-agent
+    networks:
+      - llm_network
+    ports:
+      - "5001:5000"
+
+  indic-translation:
+    build:
+      context: ./IndicTranslation -- Docker
+      dockerfile: Dockerfile
+    image: indic-translation
+    container_name: indic-translation
+    networks:
+      - llm_network
+    ports:
+      - "5002:5000"
+
+  transcription-agent:
+    build:
+      context: ./Transcription Agent --Docker
+      dockerfile: Dockerfile
+    image: transcription-agent
+    container_name: transcription-agent
+    networks:
+      - llm_network
+    ports:
+      - "5003:5000"
+
+  orchestration-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: orchestration-agent
+    container_name: orchestration-agent
+    networks:
+      - llm_network
+    depends_on:
+      - conversational-agent
+      - indic-translation
+      - transcription-agent
+    deploy:
+      replicas: 0  
+    volumes:
+      - ./audios:/app/audios:ro # read-only access
+
+
+networks:
+  llm_network:
+    driver: bridge
