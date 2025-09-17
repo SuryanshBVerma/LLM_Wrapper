@@ -16,15 +16,18 @@ ENV PYTHONPATH="/app/env/lib/python3.10/site-packages"
 COPY IndicTransToolkit /app/IndicTransToolkit
 RUN cd /app/IndicTransToolkit && pip install .
 
+# DELETE IndicTransToolkit Folder
+RUN rm -rf /app/IndicTransToolkit
+
 
 # Install basic dependencies
-RUN pip install torch flask transformers==4.38.0
+RUN pip install torch flask flask_cors transformers==4.38.0
 
 # Copy the models (optional, remove if downloading at runtime)
 COPY models /app/models
 
 # Copy the rest of the application code
-COPY . .
+COPY IndicTranslation.py /app/
 
 # Set the cache directory for Hugging Face models
 ENV HF_HOME=/app/models/huggingface

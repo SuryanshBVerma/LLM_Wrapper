@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 import os
 
 app = Flask(__name__)
+CORS(app)  # Allow CORS from all domains
 
 # Set your local model directory
 model_dir = "./model/Qwen3-0.6B"
@@ -53,8 +55,7 @@ def chat():
     history.append({"role": "assistant", "content": output_text.strip()})
 
     return jsonify({
-        "response": output_text.strip(),
-        "history": history
+        "response": output_text.strip(),        # "history": history
     })
 
 if __name__ == "__main__":

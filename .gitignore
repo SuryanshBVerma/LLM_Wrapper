@@ -1,11 +1,15 @@
 /audios
 
+
+/Coversational Agent --Docker/__pycache__
 /Coversational Agent --Docker/model
+/Coversational Agent --Docker/.venv
 
 /IndicTranslation -- Docker/__pycache__
 /IndicTranslation -- Docker/.env
 /IndicTranslation -- Docker/IndicTransToolkit
 /IndicTranslation -- Docker/models
 
+/Transcription Agent --Docker/__pycache__
 /Transcription Agent --Docker/model
 /Transcription Agent --Docker/myenv

@@ -12,8 +12,10 @@ ENV PATH="/app/env/bin:$PATH"
 ENV PYTHONPATH="/app/env/lib/python3.10/site-packages"
 
 # Copy requirments.txt and install the dependencies
+# System deps
 COPY requirments.txt /app/
 RUN pip install -r requirments.txt
+RUN apt-get update && apt-get install -y ffmpeg libsndfile1
 
 # Copy the model and the code
 COPY model /app/models

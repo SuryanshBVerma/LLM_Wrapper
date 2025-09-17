@@ -1,24 +1,49 @@
 # Transcription API endpoint
 import sys
-def is_kannada(text):
-    # Kannada Unicode range: 0C80–0CFF
-    return any(0x0C80 <= ord(char) <= 0x0CFF for char in text if not char.isspace())
 import requests
+import pyttsx3
+import time
+import asyncio
+import threading
+import re
 
 # API endpoints
 LLM_API = "http://conversational-agent:5000/chat"  # LLM chat
 TRANSLATE = "http://indic-translation:5000/translate"  # Kannada to English
 TRANSCRIBE_API = "http://transcription-agent:5000/transcribe"  # Transcription Agent
 
-import time
-# Try to initialize pyttsx3, handle missing espeak gracefully
-try:
-    import pyttsx3
-    engine = pyttsx3.init()
-    tts_available = True
-except Exception as e:
-    print("[WARNING] pyttsx3 initialization failed (likely missing espeak):", e)
-    tts_available = False
+def is_kannada(text):
+    # Kannada Unicode range: 0C80–0CFF
+    return any(0x0C80 <= ord(char) <= 0x0CFF for char in text if not char.isspace())
+
+
+def speak_text(text):
+    """
+    Initializes a new TTS engine, speaks the text, and cleans up.
+    This is more robust for use in loops. Emojis are removed before speaking.
+    """
+    try:
+        emoji_pattern = re.compile(
+            "["
+            "\U0001F600-\U0001F64F"  # emoticons
+            "\U0001F300-\U0001F5FF"  # symbols & pictographs
+            "\U0001F680-\U0001F6FF"  # transport & map symbols
+            "\U0001F1E0-\U0001F1FF"  # flags (iOS)
+            "\U00002700-\U000027BF"  # Dingbats
+            "\U000024C2-\U0001F251"  # Enclosed characters
+            "]+",
+            flags=re.UNICODE
+        )
+        text_no_emoji = emoji_pattern.sub(r'', text)
+        engine = pyttsx3.init()
+        engine.setProperty('rate', 150)
+        engine.setProperty('volume', 0.9)
+        engine.say(text_no_emoji)
+        engine.runAndWait()
+        engine.stop()
+    except Exception as e:
+        print(f"[ERROR] TTS failed: {e}")
+        print("[INFO] Check if a TTS engine like 'espeak' (Linux) or 'SAPI5' (Windows) is installed.")
 
 def startup():
     print("Checking required services...")
@@ -48,6 +73,11 @@ def startup():
 def chat():
     print("\n🤖 Translator & LLM Agent is ready! Type 'exit' to quit.\n")
     history = []
+
+    def run_tts_async(text):
+        t = threading.Thread(target=speak_text, args=(text,))
+        t.daemon = True
+        t.start()
 
     while True:
         # Choose input mode
@@ -117,15 +147,8 @@ def chat():
             continue
         print(f"🤖 LLM Output (English): {llm_output}")
 
-        # Convert LLM response to speech using pyttsx3 if available
-        if tts_available:
-            try:
-                engine.say(llm_output)
-                engine.runAndWait()
-            except Exception as e:
-                print(f"[ERROR] TTS failed: {e}")
-        else:
-            print("[INFO] TTS not available (missing espeak or pyttsx3). Skipping speech synthesis.")
+        # Speak text asynchronously, removing emojis
+        run_tts_async(llm_output)
 
         # Translate LLM output from English to Kannada using HTTP POST
         try:

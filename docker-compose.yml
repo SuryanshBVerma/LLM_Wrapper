@@ -32,23 +32,6 @@ services:
     ports:
       - "5003:5000"
 
-  orchestration-agent:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: orchestration-agent
-    container_name: orchestration-agent
-    networks:
-      - llm_network
-    depends_on:
-      - conversational-agent
-      - indic-translation
-      - transcription-agent
-    deploy:
-      replicas: 0  
-    volumes:
-      - ./audios:/app/audios:ro # read-only access
-
 
 networks:
   llm_network:

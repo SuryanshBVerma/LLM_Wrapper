@@ -2,6 +2,7 @@ import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 from IndicTransToolkit.processor import IndicProcessor
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 '''
     TRANSLATION USING INDICTRANS MODELS.
@@ -130,6 +131,7 @@ class KannadaTranslator:
 
 # === Flask Server ===
 app = Flask(__name__)
+CORS(app)  # Allow CORS from all domains
 translator = KannadaTranslator()
 
 
